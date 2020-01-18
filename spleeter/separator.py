@@ -35,7 +35,7 @@ __license__ = 'MIT License'
 class Separator(object):
     """ A wrapper class for performing separation. """
 
-    def __init__(self, params_descriptor, MWF=False):
+    def __init__(self, params_descriptor, descriptor_config, MWF=False):
         """ Default constructor.
 
         :param params_descriptor: Descriptor for TF params to be used.
@@ -43,6 +43,7 @@ class Separator(object):
         """
         self._params = load_configuration(params_descriptor)
         self._sample_rate = self._params['sample_rate']
+        self._descriptor_config = descriptor_config
         self._MWF = MWF
         self._predictor = None
         self._pool = Pool()
@@ -54,7 +55,7 @@ class Separator(object):
         :returns: Predictor to use for source separation.
         """
         if self._predictor is None:
-            estimator = create_estimator(self._params, self._MWF)
+            estimator = create_estimator(self._params, self._descriptor_config, self._MWF)
             self._predictor = to_predictor(estimator)
         return self._predictor
 

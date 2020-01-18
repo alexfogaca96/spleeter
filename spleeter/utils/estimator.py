@@ -20,7 +20,7 @@ from ..model.provider import get_default_model_provider
 DEFAULT_EXPORT_DIRECTORY = join(gettempdir(), 'serving')
 
 
-def create_estimator(params, MWF):
+def create_estimator(params, config, MWF):
     """
         Initialize tensorflow estimator that will perform separation
 
@@ -36,8 +36,12 @@ def create_estimator(params, MWF):
     params['model_dir'] = model_provider.get(model_directory)
     params['MWF'] = MWF
     # Setup config
-    session_config = tf.compat.v1.ConfigProto()
-    session_config.gpu_options.per_process_gpu_memory_fraction = 0.7
+    session_config = tf.compat.v1.ConfigProto(
+        allow_soft_placement=True,
+        inter_op_parallelism_threads=config.get('inter_op_parallelism_threads', 1),
+        intra_op_parallelism_threads=config.get('intra_op_parallelism_threads', 1))
+    session_config.gpu_options.per_process_gpu_memory_fraction = config.get('per_process_gpu_memory_fraction', 0.05)
+    session_config.gpu_options.allow_growth = True
     config = tf.estimator.RunConfig(session_config=session_config)
     # Setup estimator
     estimator = tf.estimator.Estimator(
